@@ -17,6 +17,7 @@ import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import MessageButton from '../components/MessageButton';
+import { imgUrl } from '../utils/imgUrl';
 
 // ── Shared helpers ─────────────────────────────────────────────────────────
 
@@ -94,7 +95,7 @@ function ImageGallery({ images, title }) {
       {/* Main image */}
       <div className="w-full rounded-2xl overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
         <img
-          src={active.image_url}
+          src={imgUrl(active.image_url)}
           alt={`${title} — image ${activeIdx + 1}`}
           className="w-full h-full object-cover"
         />
@@ -113,7 +114,7 @@ function ImageGallery({ images, title }) {
                   : 'border-transparent hover:border-gray-300'
               }`}
             >
-              <img src={img.image_url} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+              <img src={imgUrl(img.image_url)} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
             </button>
           ))}
         </div>
@@ -246,7 +247,7 @@ function OwnerCard({ listing, isOwner }) {
       <div className="flex items-start gap-4">
         {listing.owner_avatar ? (
           <img
-            src={listing.owner_avatar}
+            src={imgUrl(listing.owner_avatar)}
             alt={listing.owner_name}
             className="w-14 h-14 rounded-full object-cover ring-2 ring-indigo-100 flex-shrink-0"
           />
@@ -331,7 +332,7 @@ function ReviewsSection({ ownerId }) {
         <div key={r.id} className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
           <div className="flex items-start gap-3">
             {r.reviewer_avatar ? (
-              <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              <img src={imgUrl(r.reviewer_avatar)} alt={r.reviewer_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
             ) : (
               <UserCircleIcon className="w-9 h-9 text-gray-300 flex-shrink-0" />
             )}

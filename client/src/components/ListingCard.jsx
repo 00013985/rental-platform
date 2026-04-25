@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPinIcon, StarIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { imgUrl } from '../utils/imgUrl';
 
 // Renders up to 5 stars, supports half-star precision via fill width trick
 function Stars({ rating, count }) {
@@ -56,7 +57,7 @@ export default function ListingCard({ listing }) {
       <div className="relative w-full" style={{ paddingBottom: '75%' }}>
         {primary_image ? (
           <img
-            src={primary_image}
+            src={imgUrl(primary_image)}
             alt={title}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
@@ -103,7 +104,7 @@ export default function ListingCard({ listing }) {
           <div className="flex items-center gap-1.5">
             {owner_avatar ? (
               <img
-                src={owner_avatar}
+                src={imgUrl(owner_avatar)}
                 alt={owner_name}
                 className="w-5 h-5 rounded-full object-cover"
               />

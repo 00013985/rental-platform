@@ -17,6 +17,7 @@ import {
   ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axios';
+import { imgUrl } from '../utils/imgUrl';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -398,7 +399,7 @@ function OverviewTab() {
             ) : recentUsers.map((u) => (
               <div key={u.id} className="px-6 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors">
                 {u.avatar_url
-                  ? <img src={u.avatar_url} alt={u.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                  ? <img src={imgUrl(u.avatar_url)} alt={u.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                   : <UserCircleIcon className="w-9 h-9 text-gray-300 flex-shrink-0" />
                 }
                 <div className="flex-1 min-w-0">
@@ -570,7 +571,7 @@ function UsersTab() {
                 <Td>
                   <div className="flex items-center gap-2">
                     {u.avatar_url
-                      ? <img src={u.avatar_url} alt={u.name} className="w-6 h-6 rounded-full object-cover" />
+                      ? <img src={imgUrl(u.avatar_url)} alt={u.name} className="w-6 h-6 rounded-full object-cover" />
                       : <UserCircleIcon className="w-6 h-6 text-gray-300" />
                     }
                     <a

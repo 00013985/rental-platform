@@ -14,6 +14,7 @@ import {
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
+import { imgUrl } from '../utils/imgUrl';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ function EditProfileForm({ profile, onSaved }) {
 
   const fileInputRef = useRef(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(profile.avatar_url ?? null);
+  const [avatarPreview, setAvatarPreview] = useState(profile.avatar_url ? imgUrl(profile.avatar_url) : null);
 
   async function handleAvatarChange(e) {
     const file = e.target.files[0];
@@ -387,7 +388,7 @@ export default function MyProfilePage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-center gap-5">
             {profile.avatar_url
-              ? <img src={profile.avatar_url} alt={profile.name} className="w-20 h-20 rounded-full object-cover ring-4 ring-indigo-100 flex-shrink-0" />
+              ? <img src={imgUrl(profile.avatar_url)} alt={profile.name} className="w-20 h-20 rounded-full object-cover ring-4 ring-indigo-100 flex-shrink-0" />
               : <UserCircleIcon className="w-20 h-20 text-gray-300 flex-shrink-0" />
             }
             <div>

@@ -4,6 +4,7 @@ import { UserCircleIcon, StarIcon as StarOutline } from '@heroicons/react/24/out
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { imgUrl } from '../utils/imgUrl';
 import ListingCard from '../components/ListingCard';
 import MessageButton from '../components/MessageButton';
 
@@ -111,7 +112,7 @@ function ReviewsTab({ userId }) {
         <div key={r.id} className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="flex items-start gap-3">
             {r.reviewer_avatar
-              ? <img src={r.reviewer_avatar} alt={r.reviewer_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+              ? <img src={imgUrl(r.reviewer_avatar)} alt={r.reviewer_name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
               : <UserCircleIcon className="w-9 h-9 text-gray-300 flex-shrink-0" />
             }
             <div className="flex-1 min-w-0">
@@ -183,7 +184,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
             {profile.avatar_url
-              ? <img src={profile.avatar_url} alt={profile.name} className="w-24 h-24 rounded-full object-cover ring-4 ring-indigo-100 flex-shrink-0" />
+              ? <img src={imgUrl(profile.avatar_url)} alt={profile.name} className="w-24 h-24 rounded-full object-cover ring-4 ring-indigo-100 flex-shrink-0" />
               : <UserCircleIcon className="w-24 h-24 text-gray-300 flex-shrink-0" />
             }
 
