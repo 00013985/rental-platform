@@ -16,30 +16,41 @@ INSERT INTO categories (name, icon) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- ============================================================
--- USERS  (password = "password123" for all demo accounts)
+-- USERS  (password = "password" for all accounts)
 -- ============================================================
--- bcrypt hash for "password123" (cost 10) — safe to use in dev/demo only
-INSERT INTO users (name, email, password_hash, phone, bio) VALUES
+-- bcrypt hash for "password" (cost 10) — safe to use in dev/demo only
+INSERT INTO users (name, email, password_hash, phone, bio, is_admin) VALUES
+  (
+    'Admin',
+    'admin@example.com',
+    '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    NULL,
+    NULL,
+    true
+  ),
   (
     'Zafar Toshmatov',
     'zafar@example.com',
     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     '+998-90-123-4567',
-    'Tashkent handyman with a garage full of tools. Happy to lend gear to good neighbours in Chilanzar.'
+    'Tashkent handyman with a garage full of tools. Happy to lend gear to good neighbours in Chilanzar.',
+    false
   ),
   (
     'Malika Yusupova',
     'malika@example.com',
     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     '+998-91-234-5678',
-    'Outdoor enthusiast based in Yunusabad. I rent out camping and sports equipment on weekends.'
+    'Outdoor enthusiast based in Yunusabad. I rent out camping and sports equipment on weekends.',
+    false
   ),
   (
     'Jasur Karimov',
     'jasur@example.com',
     '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     '+998-93-345-6789',
-    'Tech lover from Mirzo Ulugbek. I own a lot of gadgets I rarely use — rent them cheap!'
+    'Tech lover from Mirzo Ulugbek. I own a lot of gadgets I rarely use — rent them cheap!',
+    false
   )
 ON CONFLICT (email) DO NOTHING;
 
