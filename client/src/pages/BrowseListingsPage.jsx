@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   AdjustmentsHorizontalIcon,
@@ -83,9 +83,8 @@ function Pagination({ page, pages, onPageChange }) {
 }
 
 // ── Filter sidebar content (shared between desktop sidebar and mobile drawer)
-function FilterPanel({ params, onParamChange, onClear, categories }) {
+function FilterPanel({ params, onParamChange, onClear, categories, keywordInput, setKeywordInput }) {
   const selectedCategory = params.get('category') ? Number(params.get('category')) : null;
-  const keyword   = params.get('keyword')   ?? '';
   const minPrice  = params.get('min_price') ?? '';
   const maxPrice  = params.get('max_price') ?? '';
 
@@ -98,10 +97,10 @@ function FilterPanel({ params, onParamChange, onClear, categories }) {
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            value={keyword}
+            value={keywordInput}
             placeholder="Drill, tent, camera…"
             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            onChange={(e) => onParamChange('keyword', e.target.value || null)}
+            onChange={(e) => setKeywordInput(e.target.value)}
           />
         </div>
       </div>
@@ -179,6 +178,9 @@ export default function BrowseListingsPage() {
   const [error, setError]             = useState(null);
   const [drawerOpen, setDrawerOpen]   = useState(false);
   const [categories, setCategories]   = useState([]);
+  // Local keyword state — decoupled from URL so typing doesn't immediately trigger fetch+scroll
+  const [keywordInput, setKeywordInput] = useState(() => searchParams.get('keyword') ?? '');
+  const debounceTimer = useRef(null);
 
   // Fetch categories once on mount
   useEffect(() => {
@@ -186,6 +188,24 @@ export default function BrowseListingsPage() {
       .then(({ data }) => setCategories(data.categories))
       .catch(() => {});
   }, []);
+
+  // Debounce: push keywordInput → URL only after 400 ms of no typing
+  useEffect(() => {
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (keywordInput) {
+          next.set('keyword', keywordInput);
+        } else {
+          next.delete('keyword');
+        }
+        next.set('page', '1');
+        return next;
+      });
+    }, 400);
+    return () => clearTimeout(debounceTimer.current);
+  }, [keywordInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentPage = Number(searchParams.get('page') ?? 1);
 
@@ -241,6 +261,8 @@ export default function BrowseListingsPage() {
   }
 
   function clearFilters() {
+    clearTimeout(debounceTimer.current);
+    setKeywordInput('');
     setSearchParams({});
   }
 
@@ -250,7 +272,7 @@ export default function BrowseListingsPage() {
     searchParams.get('min_price') ||
     searchParams.get('max_price');
 
-  const filterProps = { params: searchParams, onParamChange, onClear: clearFilters, categories };
+  const filterProps = { params: searchParams, onParamChange, onClear: clearFilters, categories, keywordInput, setKeywordInput };
 
   return (
     <div className="bg-gray-50 min-h-screen">

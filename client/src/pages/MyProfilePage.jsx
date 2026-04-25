@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -9,6 +9,7 @@ import {
   Squares2X2Icon,
   CheckCircleIcon,
   XCircleIcon,
+  ArrowUpTrayIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -43,20 +44,46 @@ function inputCls(hasErr) {
 function EditProfileForm({ profile, onSaved }) {
   const { register, handleSubmit, formState: { errors, isSubmitting, isDirty } } = useForm({
     defaultValues: {
-      name:       profile.name       ?? '',
-      bio:        profile.bio        ?? '',
-      phone:      profile.phone      ?? '',
-      avatar_url: profile.avatar_url ?? '',
+      name:  profile.name  ?? '',
+      bio:   profile.bio   ?? '',
+      phone: profile.phone ?? '',
     },
   });
+
+  const fileInputRef = useRef(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(profile.avatar_url ?? null);
+
+  async function handleAvatarChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Show local preview immediately
+    setAvatarPreview(URL.createObjectURL(file));
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    setAvatarUploading(true);
+    try {
+      const { data } = await api.post('/api/users/me/avatar', formData);
+      toast.success('Avatar updated!');
+      onSaved(data.user);
+      setAvatarPreview(data.user.avatar_url);
+    } catch (err) {
+      toast.error(err.response?.data?.error ?? 'Failed to upload avatar');
+      setAvatarPreview(profile.avatar_url ?? null);
+    } finally {
+      setAvatarUploading(false);
+      e.target.value = '';
+    }
+  }
 
   async function onSubmit(data) {
     try {
       const { data: res } = await api.put('/api/users/me', {
-        name:       data.name       || undefined,
-        bio:        data.bio        || undefined,
-        phone:      data.phone      || undefined,
-        avatar_url: data.avatar_url || undefined,
+        name:  data.name  || undefined,
+        bio:   data.bio   || undefined,
+        phone: data.phone || undefined,
       });
       toast.success('Profile updated!');
       onSaved(res.user);
@@ -67,6 +94,44 @@ function EditProfileForm({ profile, onSaved }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      {/* Avatar upload */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Profile photo</label>
+        <div className="flex items-center gap-4">
+          {avatarPreview ? (
+            <img
+              src={avatarPreview}
+              alt="Avatar preview"
+              className="w-16 h-16 rounded-full object-cover ring-2 ring-indigo-100 flex-shrink-0"
+            />
+          ) : (
+            <UserCircleIcon className="w-16 h-16 text-gray-300 flex-shrink-0" />
+          )}
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              type="button"
+              disabled={avatarUploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 text-sm font-medium border border-gray-300 text-gray-700
+                         px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+            >
+              {avatarUploading
+                ? <span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                : <ArrowUpTrayIcon className="w-4 h-4" />}
+              {avatarUploading ? 'Uploading…' : 'Upload photo'}
+            </button>
+            <p className="mt-1 text-xs text-gray-400">JPEG or PNG, max 5 MB</p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name <span className="text-red-400">*</span></label>
@@ -91,20 +156,6 @@ function EditProfileForm({ profile, onSaved }) {
           style={{ resize: 'vertical' }}
           {...register('bio')}
         />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Avatar URL</label>
-        <input
-          type="url"
-          placeholder="https://example.com/avatar.jpg"
-          className={inputCls(!!errors.avatar_url)}
-          {...register('avatar_url', {
-            validate: (v) => !v || /^https?:\/\/.+/.test(v) || 'Must be a valid URL',
-          })}
-        />
-        {errors.avatar_url && <p className="mt-1 text-xs text-red-500">{errors.avatar_url.message}</p>}
-        <p className="mt-1 text-xs text-gray-400">Image upload coming soon — paste a URL for now.</p>
       </div>
 
       <button

@@ -30,7 +30,7 @@ function FieldError({ message }) {
 // Shared label
 function Label({ htmlFor, children, required }) {
   return (
-    <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 mb-1">
+    <label htmlFor={htmlFor} className="text-sm font-medium text-gray-700 mb-1 flex">
       {children}
       {required && <span className="text-red-400 ml-1">*</span>}
     </label>

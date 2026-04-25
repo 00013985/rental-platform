@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 
 const pool = require('../db/connection');
 const { verifyToken } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -50,7 +51,7 @@ router.put(
     body('name').optional().notEmpty().withMessage('name cannot be blank'),
     body('bio').optional({ nullable: true }).isString(),
     body('phone').optional({ nullable: true }).isString(),
-    body('avatar_url').optional({ nullable: true }).isURL().withMessage('avatar_url must be a valid URL'),
+    body('avatar_url').optional({ nullable: true }).isString(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -132,5 +133,25 @@ router.put(
     }
   }
 );
+
+// ── POST /api/users/me/avatar  (upload avatar image) ─────────────────────────
+
+router.post('/me/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No image file provided' });
+
+  const avatarUrl = `/uploads/${req.file.filename}`;
+
+  try {
+    const { rows } = await pool.query(
+      `UPDATE users SET avatar_url = $1 WHERE id = $2
+       RETURNING id, name, email, phone, avatar_url, bio, is_admin, created_at`,
+      [avatarUrl, req.user.id]
+    );
+    return res.json({ user: rows[0] });
+  } catch (err) {
+    console.error('POST /users/me/avatar error:', err);
+    return res.status(500).json({ error: 'Server error uploading avatar' });
+  }
+});
 
 module.exports = router;

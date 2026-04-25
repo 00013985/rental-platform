@@ -170,10 +170,9 @@ router.get('/:id', async (req, res) => {
       [req.params.id]
     );
 
-    // Strip internal columns; expose only safe owner fields
+    // Strip internal columns; keep owner_id so clients can send messages / check ownership
     const {
       password_hash,
-      owner_id,
       ...rest
     } = listing;
 
